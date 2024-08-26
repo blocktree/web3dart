@@ -234,4 +234,29 @@ void main() {
       '5c9f3dc64214b297fb1966a3b6d83',
     );
   });
+
+  test('signs eip 155 transaction async', () async {
+    final credentials = EthPrivateKey.fromHex(
+      '0x4646464646464646464646464646464646464646464646464646464646464646',
+    );
+
+    final transaction = Transaction(
+      nonce: 9,
+      gasPrice: EtherAmount.inWei(BigInt.from(20000000000)),
+      maxGas: 21000,
+      to: EthereumAddress.fromHex('0x3535353535353535353535353535353535353535'),
+      value: EtherAmount.inWei(BigInt.from(1000000000000000000)),
+    );
+
+    final client = Web3Client('', Client());
+    final signature = await client.signTransactionAsync(credentials, transaction);
+
+    expect(
+      bytesToHex(signature),
+      'f86c098504a817c800825208943535353535353535353535353535353535353535880'
+          'de0b6b3a76400008025a028ef61340bd939bc2195fe537567866003e1a15d'
+          '3c71ff63e1590620aa636276a067cbe9d8997f761aecb703304b3800ccf55'
+          '5c9f3dc64214b297fb1966a3b6d83',
+    );
+  });
 }

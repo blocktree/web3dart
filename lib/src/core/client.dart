@@ -386,6 +386,33 @@ class Web3Client {
     );
   }
 
+  /// Signs the [transaction] with the credentials [cred]. The transaction will
+  /// not be sent.
+  ///
+  /// See also:
+  ///  - [bytesToHex], which can be used to get the more common hexadecimal
+  /// representation of the transaction.
+  Future<Uint8List> signTransactionAsync(
+      Credentials cred,
+      Transaction transaction, {
+        int? chainId = 1,
+        bool fetchChainIdFromNetworkId = false,
+      }) async {
+    final signingInput = await _fillMissingData(
+      credentials: cred,
+      transaction: transaction,
+      chainId: chainId,
+      loadChainIdFromNetwork: fetchChainIdFromNetworkId,
+      client: this,
+    );
+
+    return signTransactionRawAsync(
+      signingInput.transaction,
+      signingInput.credentials,
+      chainId: signingInput.chainId,
+    );
+  }
+
   /// Calls a [function] defined in the smart [contract] and returns it's
   /// result.
   ///

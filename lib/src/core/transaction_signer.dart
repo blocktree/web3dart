@@ -122,6 +122,28 @@ Uint8List signTransactionRaw(
   return uint8ListFromList(rlp.encode(_encodeToRlp(transaction, signature)));
 }
 
+Future<Uint8List> signTransactionRawAsync(
+    Transaction transaction,
+    Credentials c, {
+      int? chainId = 1,
+    }) async {
+  final encoded = transaction.getUnsignedSerialized(chainId: chainId);
+  final signature = await c.signToSignature(
+    encoded,
+    chainId: chainId,
+    isEIP1559: transaction.isEIP1559,
+  );
+
+  if (transaction.isEIP1559 && chainId != null) {
+    return uint8ListFromList(
+      rlp.encode(
+        _encodeEIP1559ToRlp(transaction, signature, BigInt.from(chainId)),
+      ),
+    );
+  }
+  return uint8ListFromList(rlp.encode(_encodeToRlp(transaction, signature)));
+}
+
 List<dynamic> _encodeEIP1559ToRlp(
   Transaction transaction,
   MsgSignature? signature,
