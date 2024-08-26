@@ -346,6 +346,36 @@ class Web3Client {
     return sendRawTransaction(signed);
   }
 
+  /// Signs the given transaction using the keys supplied in the [cred]
+  /// object to upload it to the client so that it can be executed.
+  ///
+  /// Returns a hash of the transaction which, after the transaction has been
+  /// included in a mined block, can be used to obtain detailed information
+  /// about the transaction.
+  Future<String> sendTransactionAsync(
+      Credentials cred,
+      Transaction transaction, {
+        int? chainId = 1,
+        bool fetchChainIdFromNetworkId = false,
+      }) async {
+    if (cred is CustomTransactionSender) {
+      return cred.sendTransaction(transaction);
+    }
+
+    var signed = await signTransactionAsync(
+      cred,
+      transaction,
+      chainId: chainId,
+      fetchChainIdFromNetworkId: fetchChainIdFromNetworkId,
+    );
+
+    if (transaction.isEIP1559) {
+      signed = prependTransactionType(0x02, signed);
+    }
+
+    return sendRawTransaction(signed);
+  }
+
   /// Sends a raw, signed transaction.
   ///
   /// To obtain a transaction in a signed form, use [signTransaction].
